@@ -1,0 +1,9 @@
+{
+	"extends": "../../tsconfig.settings.json",
+	"compilerOptions": {
+		"module": "CommonJS",
+		"outDir": "../../dist/db"
+	},
+	"include": ["config", "migrations"],
+	"exclude": ["migrations/00000000000000-template.cts"]
+}

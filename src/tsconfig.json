@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.settings.json",
+	"compilerOptions": {
+		"module": "esnext"
+	},
+	"include": ["."],
+	"exclude": [
+		"db/migrations/**/*.cts",
+		"db/seeders/**/*.cts",
+		"db/config/**/*.cts"
+	]
+}
