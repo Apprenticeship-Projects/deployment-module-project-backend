@@ -1,5 +1,5 @@
 import http from "http";
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import passport from "passport";
