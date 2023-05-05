@@ -8,6 +8,8 @@ import routes from "./routes";
 import { defaultRoute } from "./routes/defaultRoute";
 import { userRoute } from "./routes/userRoute";
 import { sessionRoute } from "./routes/sessionRoute";
+import { channelRoute } from "./routes/channelRoute";
+import { messageRoute } from "./routes/messageRoute";
 
 const app = express();
 const server = http.createServer(app);
@@ -29,5 +31,7 @@ app.use(passport.session());
 app.use("/", defaultRoute);
 app.use("/user", userRoute);
 app.use("/session", sessionRoute)
+app.use("/channel", channelRoute)
+app.use("/message", messageRoute)
 
 export default server;
