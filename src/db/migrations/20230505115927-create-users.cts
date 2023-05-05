@@ -14,10 +14,15 @@ export default {
 				type: DataTypes.STRING,
 				field: "username",
 				allowNull: false,
-				unique: true,
 				validate: {
 					len: [2, 40],
 				},
+			},
+			email: {
+				type: DataTypes.STRING,
+				field: "email",
+				allowNull: false,
+				unique: true,
 			},
 			password: {
 				type: DataTypes.STRING,

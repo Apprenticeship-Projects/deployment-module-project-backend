@@ -40,6 +40,7 @@ type CreationAttributes = InferCreationAttributes<User, { omit: UserAssociations
 export class User extends Model<Attributes, CreationAttributes> {
 	declare id: CreationOptional<number>;
 	declare username: string;
+	declare email: string;
 	declare password: string;
 	declare createdAt: CreationOptional<Date>;
 	declare updatedAt: CreationOptional<Date>;
@@ -113,10 +114,14 @@ export class User extends Model<Attributes, CreationAttributes> {
 				username: {
 					type: DataTypes.STRING,
 					allowNull: false,
-					unique: true,
 					validate: {
 						len: [2, 40],
 					},
+				},
+				email: {
+					type: DataTypes.STRING,
+					allowNull: false,
+					unique: true,
 				},
 				password: {
 					type: DataTypes.STRING,
