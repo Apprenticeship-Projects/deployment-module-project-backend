@@ -1,6 +1,9 @@
 import "./utils/env";
 import "./sockets";
 import server from "./app";
+import { initDatabase } from "./db";
+
+await initDatabase();
 
 const port = process.env.PORT;
 
