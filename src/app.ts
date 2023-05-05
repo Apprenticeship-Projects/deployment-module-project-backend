@@ -1,7 +1,9 @@
 import http from "http";
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swagger from "swagger-ui-express";
+import swaggerDoc from "./swagger.json" assert { type: "json" };
 import passport from "passport";
 import { sessionMiddleware } from "./sessions";
 import routes from "./routes";
@@ -28,6 +30,28 @@ app.use(passport.session());
 
 app.use("/", defaultRoute);
 app.use("/user", userRoute);
-app.use("/session", sessionRoute)
+app.use("/session", sessionRoute);
+
+app.use(
+	"/docs",
+	swagger.serve,
+	swagger.setup(swaggerDoc, {
+		customSiteTitle: "Chat App API",
+	})
+);
+
+app.use((err: Error | Error[], _req: Request, res: Response, _next: NextFunction) => {
+	const errors = Array.isArray(err) ? err : [err];
+	for (const error of errors) {
+		console.error(`[${error.name}] ${error.message}: ${error.stack}`);
+	}
+
+	if (res.headersSent) return;
+
+	res.status(500).send({
+		message: "An error occured on the server!",
+		errors,
+	});
+});
 
 export default server;
