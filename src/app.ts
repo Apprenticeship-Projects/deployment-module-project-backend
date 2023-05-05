@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import { sessionMiddleware } from "./sessions";
+import routes from "./routes";
 
 const app = express();
 const server = http.createServer(app);
@@ -22,8 +23,6 @@ app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.get("/", (req, res) => {
-	res.send("Test Server");
-});
+app.use("/", routes);
 
 export default server;
