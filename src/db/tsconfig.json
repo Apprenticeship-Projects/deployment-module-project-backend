@@ -4,6 +4,9 @@
 		"module": "CommonJS",
 		"outDir": "../../dist/db"
 	},
-	"include": ["config", "migrations"],
-	"exclude": ["migrations/00000000000000-template.cts"]
+	"include": ["config", "migrations", "seeders"],
+	"exclude": [
+		"migrations/00000000000000-template.cts",
+		"seeders/00000000000000-template.cts"
+	]
 }
