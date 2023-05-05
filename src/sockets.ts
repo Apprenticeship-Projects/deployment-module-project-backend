@@ -39,3 +39,5 @@ io.on("connection", async (socket) => {
 		socket.join(rooms);
 	}
 });
+
+export default io;
