@@ -1,4 +1,5 @@
 import "./utils/env";
+import "./sockets";
 import server from "./app";
 
 const port = process.env.PORT;
