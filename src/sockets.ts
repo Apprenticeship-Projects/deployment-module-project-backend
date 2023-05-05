@@ -1,7 +1,9 @@
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import server from "./app";
 import { sessionMiddleware } from "./sessions";
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
+import { ExtendedError } from "socket.io/dist/namespace";
+import passport from "passport";
 
 const io = new Server(server, {
 	cors: {
@@ -9,10 +11,31 @@ const io = new Server(server, {
 	},
 });
 
-io.use((socket, next) => {
-	sessionMiddleware(socket.request as Request, {} as Response, next as NextFunction);
-});
+const useWrapper =
+	(handler: RequestHandler) =>
+	(socket: Socket, next: (err?: ExtendedError | undefined) => void) =>
+		handler(socket.request as Request, {} as Response, next as NextFunction);
 
-io.on("connection", (socket) => {
-	console.log("a user connected");
+io.use(useWrapper(sessionMiddleware));
+io.use(useWrapper(passport.initialize()));
+io.use(useWrapper(passport.session()));
+
+io.on("connection", async (socket) => {
+	const req = socket.request as Request;
+
+	console.log("User connected");
+	console.log("Authenticated:", req.isAuthenticated());
+	console.log("User:", req.user);
+
+	socket.join(req.session.id);
+
+	if (req.isAuthenticated()) {
+		const channels = await req.user.getAllChannels();
+		const rooms = [];
+		for (const channel of channels) {
+			rooms.push(`channel-${channel.id}`);
+		}
+
+		socket.join(rooms);
+	}
 });
