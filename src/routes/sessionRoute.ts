@@ -2,6 +2,6 @@ import { Router } from "express";
 
 export const sessionRoute = Router();
 
-sessionRoute.get('/session', (req, res) => {
+sessionRoute.get('/', (req, res) => {
     res.send("This is the session route")
 })

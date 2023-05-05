@@ -6,11 +6,4 @@ import { messageRoute } from "./messageRoute";
 import { sessionRoute } from "./sessionRoute";
 import { channelRoute } from "./channelRoute";
 
-const routes = express.Router();
-routes.use(defaultRoute);
-routes.use(userRoute);
-routes.use(messageRoute);
-routes.use(sessionRoute);
-routes.use(channelRoute);
-
-export default routes;
+export default {defaultRoute, userRoute, messageRoute, sessionRoute, channelRoute};
