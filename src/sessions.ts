@@ -1,10 +1,13 @@
 import passport from "passport";
+import * as bcrypt from "bcrypt";
 import { Strategy as CustomStrategy } from "passport-custom";
 import session from "express-session";
 import SessionStore from "./utils/SessionStore";
 import { User } from "./db/models";
+import { Request } from "express";
 
-const SESSION_MAX_AGE = 86400 * 1000;
+export const SESSION_MAX_AGE = 86400 * 1000;
+export const SESSION_COOKIE = "chatapp.sid";
 
 const store = new SessionStore({
 	maxAge: SESSION_MAX_AGE,
@@ -15,7 +18,7 @@ export const sessionMiddleware = session({
 	resave: false,
 	saveUninitialized: false,
 	store,
-	name: "chatapp.sid",
+	name: SESSION_COOKIE,
 	cookie: {
 		domain: process.env.DOMAIN as string,
 		sameSite: false,
@@ -35,8 +38,41 @@ passport.deserializeUser<number>((id, done) => {
 
 passport.use(
 	"login",
-	new CustomStrategy(async (req, done) => {
-		// add login authentication here
-		done(null);
-	})
+	new CustomStrategy(
+		async (
+			req: Request<
+				any,
+				any,
+				{
+					email: string;
+					password: string;
+				}
+			>,
+			done
+		) => {
+			const { email, password } = req.body;
+
+			if (!email || !password) {
+				return done(null);
+			}
+
+			User.findOne({
+				where: {
+					email,
+				},
+			})
+				.then(async (user) => {
+					if (!user) {
+						return done(null);
+					}
+
+					const match = await bcrypt.compare(password, user.password);
+					if (match) {
+						return done(null, user);
+					}
+					done(null);
+				})
+				.catch(done);
+		}
+	)
 );
