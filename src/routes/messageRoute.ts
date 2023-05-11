@@ -42,7 +42,7 @@ messageRoute.get("/:id", auth, async (req, res, next) => {
 			res.status(404).send({ message: "No message id" });
 		} else {
 			const formattedMessage = await formatMessage(message);
-			res.send(formatMessage);
+			res.send(formattedMessage);
 		}
 	} catch (err) {
 		next(err);
