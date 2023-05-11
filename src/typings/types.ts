@@ -3,6 +3,11 @@ export interface IncomingMessage {
 	content: string;
 }
 
+export interface IncomingMessageUpdate {
+	id: number;
+	content: string;
+}
+
 export interface OutgoingMessage {
 	id: number;
 	channelId: number;
@@ -13,4 +18,11 @@ export interface OutgoingMessage {
 	user: {
 		username: string;
 	};
+}
+
+export interface UserConnection {
+	id: number;
+	channelId: number;
+	username: string;
+	action: "joined" | "left";
 }
