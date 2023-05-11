@@ -16,7 +16,7 @@ sessionRoute.get("/", (req, res) => {
 
 sessionRoute.post(
 	"/",
-	body("username").isString(),
+	body("email").isString(),
 	body("password").isString(),
 	validate(),
 	passport.authenticate("login"),
@@ -42,7 +42,7 @@ sessionRoute.delete("/", (req, res) => {
 		},
 		(err) => {
 			res.clearCookie(SESSION_COOKIE);
-			io.in(sessionId).disconnectSockets();
+			io.in(sessionId).disconnectSockets(true);
 
 			if (err) {
 				return res.status(500).send({
