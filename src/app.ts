@@ -6,12 +6,10 @@ import swagger from "swagger-ui-express";
 import swaggerDoc from "./swagger.json" assert { type: "json" };
 import passport from "passport";
 import { sessionMiddleware } from "./sessions";
-import routes from "./routes";
-import { defaultRoute } from "./routes/defaultRoute";
 import { userRoute } from "./routes/userRoute";
-import { sessionRoute } from "./routes/sessionRoute";
-import { channelRoute } from "./routes/channelRoute";
-import { messageRoute } from "./routes/messageRoute";
+import { sessionRoute, channelRoute, messageRoute } from "./routes";
+import requestLogger from "./middleware/requestLogger";
+import logger from "./utils/logger";
 
 const app = express();
 const server = http.createServer(app);
@@ -27,11 +25,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+app.use(requestLogger());
+
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/", defaultRoute);
 app.use("/user", userRoute);
 app.use("/session", sessionRoute);
 app.use("/channel", channelRoute);
@@ -48,7 +47,11 @@ app.use(
 app.use((err: Error | Error[], _req: Request, res: Response, _next: NextFunction) => {
 	const errors = Array.isArray(err) ? err : [err];
 	for (const error of errors) {
-		console.error(`[${error.name}] ${error.message}: ${error.stack}`);
+		if (error instanceof Error) {
+			logger.error(`Error: [${error.name}] ${error.message}: ${error.stack}`);
+		} else {
+			logger.error(`Error: ${error}`);
+		}
 	}
 
 	if (res.headersSent) return;

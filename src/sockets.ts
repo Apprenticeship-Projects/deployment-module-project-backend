@@ -14,6 +14,7 @@ interface ServerToClientEvents {
 	userLeftChannel: (data: UserConnection) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ClientToServerEvents {}
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
@@ -34,9 +35,9 @@ io.use(useWrapper(passport.session()));
 io.on("connection", async (socket) => {
 	const req = socket.request as Request;
 
-	console.log("User connected");
-	console.log("Authenticated:", req.isAuthenticated());
-	console.log("User:", req.user);
+	// console.log("User connected");
+	// console.log("Authenticated:", req.isAuthenticated());
+	// console.log("User:", req.user);
 
 	socket.join(req.session.id);
 
