@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { User } from "../db/models";
 import * as bcrypt from "bcrypt";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { SALT_ROUNDS } from "../constants";
+import { auth } from "../middleware/auth";
 
 export const userRoute = Router();
 
@@ -28,7 +29,7 @@ userRoute.post(
 			}
 			const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
-			const createdUser = await User.create({
+			await User.create({
 				username: username,
 				email: email,
 				password: hashPassword,
@@ -41,8 +42,16 @@ userRoute.post(
 	}
 );
 
-userRoute.get("/me", (req, res) => {
-	res.send("This is the user/me GET route");
+userRoute.get("/me", auth, async (req, res, next) => {
+	try {
+		const user = await User.findOne({
+			where: { id: req.user?.id },
+			include: [User.associations.channels],
+		});
+		res.status(200).send(user);
+	} catch (error) {
+		next(error);
+	}
 });
 
 userRoute.put("/me", (req, res) => {
