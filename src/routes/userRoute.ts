@@ -5,6 +5,8 @@ import { body } from "express-validator";
 import { SALT_ROUNDS } from "../constants";
 import validate from "../middleware/validate";
 import { auth } from "../middleware/auth";
+import { UserData } from "../typings/types";
+import { formatUser } from "../utils/format";
 
 export const userRoute = Router();
 
@@ -50,15 +52,17 @@ userRoute.get("/me", auth, async (req, res, next) => {
 	try {
 		const user = await User.findOne({
 			where: { id: req.user?.id },
-			include: [User.associations.channels],
 		});
-		res.status(200).send(user);
+		if (user) {
+			const formattedUser = await formatUser(user);
+			res.status(200).send(formattedUser);
+		}
 	} catch (error) {
 		next(error);
 	}
 });
 
-userRoute.put("/me", (req, res) => {
+userRoute.put("/me", auth, (req, res) => {
 	res.send("This is the user/me PUT route");
 });
 

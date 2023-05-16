@@ -1,7 +1,7 @@
 import { Request, Router } from "express";
 import { Channel, Message } from "../db/models";
 import { auth } from "../middleware/auth";
-import { formatMessage } from "../utils/messages";
+import { formatMessage } from "../utils/format";
 import { database } from "../db";
 import io from "../sockets";
 

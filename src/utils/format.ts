@@ -1,5 +1,5 @@
-import { Message } from "../db/models";
-import { OutgoingMessage } from "../typings/types";
+import { Message, User } from "../db/models";
+import { OutgoingMessage, UserData } from "../typings/types";
 
 export async function formatMessage(message: Message): Promise<OutgoingMessage> {
 	const user = await message.getUser();
@@ -15,5 +15,16 @@ export async function formatMessage(message: Message): Promise<OutgoingMessage> 
 		user: {
 			username: user.username,
 		},
+	};
+}
+
+export async function formatUser(user: User): Promise<UserData> {
+	const channels = await user.getChannels();
+
+	return {
+		id: user.id,
+		username: user.username,
+		email: user.email,
+		channels: channels,
 	};
 }
