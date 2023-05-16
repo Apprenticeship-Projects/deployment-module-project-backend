@@ -1,3 +1,6 @@
+import { Attributes, Model } from "sequelize";
+import { Col, Fn, Literal } from "sequelize/types/utils";
+
 export interface OutgoingMessage {
 	id: number;
 	channelId: number;
@@ -16,3 +19,7 @@ export interface UserConnection {
 	username: string;
 	action: "joined" | "left";
 }
+
+export type UpdateAttributes<M extends Model> = {
+	[key in keyof Attributes<M>]?: Attributes<M>[key] | Fn | Col | Literal;
+};
