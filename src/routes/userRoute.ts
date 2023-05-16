@@ -3,6 +3,7 @@ import { User } from "../db/models";
 import * as bcrypt from "bcrypt";
 import { body, validationResult } from "express-validator";
 import { SALT_ROUNDS } from "../constants";
+import validate from "../middleware/validate";
 
 export const userRoute = Router();
 
@@ -17,6 +18,7 @@ userRoute.post(
 		minSymbols: 1,
 	}),
 	body("username").isLength({ min: 2, max: 40 }),
+	validate(),
 	async (req, res, next) => {
 		try {
 			const { email, username, password } = req.body;
@@ -24,10 +26,11 @@ userRoute.post(
 			const userExists = await User.findOne({ where: { email: email } });
 
 			if (userExists) {
-				return res.status(409).send({ message: "Account already exists" });
+				res.status(409).send({ message: "Account already exists" });
+				return;
 			}
-			const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
+			const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
 			const createdUser = await User.create({
 				username: username,
 				email: email,
