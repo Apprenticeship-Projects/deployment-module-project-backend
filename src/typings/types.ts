@@ -1,5 +1,6 @@
 import { Attributes, Model } from "sequelize";
 import { Col, Fn, Literal } from "sequelize/types/utils";
+import { Channel } from "../db/models";
 
 export interface OutgoingMessage {
 	id: number;
@@ -18,6 +19,13 @@ export interface UserConnection {
 	channelId: number;
 	username: string;
 	action: "joined" | "left";
+}
+
+export interface UserData {
+	id: number;
+	username: string;
+	email: string;
+	channels: Channel[];
 }
 
 export type UpdateAttributes<M extends Model> = {

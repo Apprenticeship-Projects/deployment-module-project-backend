@@ -1,9 +1,12 @@
 import { Router } from "express";
 import { User } from "../db/models";
 import * as bcrypt from "bcrypt";
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { SALT_ROUNDS } from "../constants";
 import validate from "../middleware/validate";
+import { auth } from "../middleware/auth";
+import { UserData } from "../typings/types";
+import { formatUser } from "../utils/format";
 
 export const userRoute = Router();
 
@@ -31,6 +34,10 @@ userRoute.post(
 			}
 
 			const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
+<<<<<<< HEAD
+=======
+
+>>>>>>> beb22732aa16ab2abafd3f86f2cdef8e075b0d99
 			await User.create({
 				username: username,
 				email: email,
@@ -44,11 +51,21 @@ userRoute.post(
 	}
 );
 
-userRoute.get("/me", (req, res) => {
-	res.send("This is the user/me GET route");
+userRoute.get("/me", auth, async (req, res, next) => {
+	try {
+		const user = await User.findOne({
+			where: { id: req.user?.id },
+		});
+		if (user) {
+			const formattedUser = await formatUser(user);
+			res.status(200).send(formattedUser);
+		}
+	} catch (error) {
+		next(error);
+	}
 });
 
-userRoute.put("/me", (req, res) => {
+userRoute.put("/me", auth, (req, res) => {
 	res.send("This is the user/me PUT route");
 });
 
