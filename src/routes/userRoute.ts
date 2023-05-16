@@ -31,7 +31,7 @@ userRoute.post(
 			}
 
 			const hashPassword = await bcrypt.hash(password, SALT_ROUNDS);
-			const createdUser = await User.create({
+			await User.create({
 				username: username,
 				email: email,
 				password: hashPassword,
