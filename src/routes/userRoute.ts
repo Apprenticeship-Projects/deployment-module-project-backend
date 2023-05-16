@@ -5,8 +5,8 @@ import { body } from "express-validator";
 import { SALT_ROUNDS } from "../constants";
 import validate from "../middleware/validate";
 import { auth } from "../middleware/auth";
-import { UserData } from "../typings/types";
 import { formatUser } from "../utils/format";
+import { InferAttributes } from "sequelize";
 
 export const userRoute = Router();
 
@@ -50,20 +50,36 @@ userRoute.post(
 
 userRoute.get("/me", auth, async (req, res, next) => {
 	try {
-		const user = await User.findOne({
-			where: { id: req.user?.id },
-		});
-		if (user) {
-			const formattedUser = await formatUser(user);
-			res.status(200).send(formattedUser);
-		}
+		const formattedUser = await formatUser(req.user!);
+		res.status(200).send(formattedUser);
 	} catch (error) {
 		next(error);
 	}
 });
 
-userRoute.put("/me", auth, (req, res) => {
-	res.send("This is the user/me PUT route");
+userRoute.put("/me", auth, async (req, res, next) => {
+	try {
+		const { newUsername, newPassword, password } = req.body;
+		const correctPassword = await bcrypt.compare(password, req.user!.password);
+
+		if (correctPassword) {
+			const updateObject: { username?: string; password?: string } = {};
+
+			if (newUsername) updateObject.username = newUsername;
+
+			if (password) {
+				const hashPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+				updateObject.password = hashPassword;
+			}
+
+			const user = await req.user!.update(updateObject);
+			const formattedUser = await formatUser(user);
+			res.status(200).send(formattedUser);
+		}
+		res.status(400).send({ message: "Password required to make user changes" });
+	} catch (error) {
+		next(error);
+	}
 });
 
 userRoute.delete("/me", (req, res) => {
