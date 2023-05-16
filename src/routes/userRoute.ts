@@ -34,7 +34,7 @@ userRoute.post(
 				password: hashPassword,
 			});
 
-			res.send(createdUser);
+			res.status(200).send({ message: "Account succesfully created" });
 		} catch (error) {
 			next(error);
 		}
