@@ -14,25 +14,7 @@ interface ServerToClientEvents {
 	userLeftChannel: (data: UserConnection) => void;
 }
 
-interface ClientToServerEvents {
-	// sendMessage: (
-	// 	data: IncomingMessage,
-	// 	callback: (success: boolean, error?: string) => void
-	// ) => void;
-	// editMessage: (
-	// 	data: IncomingMessageUpdate,
-	// 	callback: (success: boolean, error?: string) => void
-	// ) => void;
-	// addChannelUser: (
-	// 	userId: number,
-	// 	channelId: number,
-	// 	callback: (success: boolean, error?: string) => void
-	// ) => void;
-	// leaveChannel: (
-	// 	id: number,
-	// 	callback: (success: boolean, error?: string) => void
-	// ) => void;
-}
+interface ClientToServerEvents {}
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
 	cors: {
@@ -66,14 +48,6 @@ io.on("connection", async (socket) => {
 		}
 
 		socket.join(rooms);
-
-		// socket.on("addChannelUser", async (userId, channelId, callback) => {
-		// 	const user = await User.findByPk(userId)
-		// 	if (!user) {
-		// 		return callback(false, "No such user")
-		// 	}
-
-		// });
 	}
 });
 
