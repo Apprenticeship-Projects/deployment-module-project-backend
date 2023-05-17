@@ -27,6 +27,7 @@ sessionRoute.post(
             description: 'Your email and password',
         }
         */
+		io.in(req.sessionID).disconnectSockets(true);
 
 		res.status(200).send({
 			message: "Logged in",

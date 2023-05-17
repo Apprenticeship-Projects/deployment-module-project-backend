@@ -5,6 +5,7 @@ import { NextFunction, Request, RequestHandler, Response } from "express";
 import { ExtendedError } from "socket.io/dist/namespace";
 import passport from "passport";
 import { OutgoingMessage, UserConnection } from "./typings/types";
+import logger from "./utils/logger";
 
 interface ServerToClientEvents {
 	messageSent: (data: OutgoingMessage) => void;
@@ -40,6 +41,9 @@ io.on("connection", async (socket) => {
 	// console.log("User:", req.user);
 
 	socket.join(req.session.id);
+	logger.info(
+		`Socket [${socket.id}] connected. Authenticated: ${req.isAuthenticated()}`
+	);
 
 	if (req.isAuthenticated()) {
 		const channels = await req.user.getAllChannels();
