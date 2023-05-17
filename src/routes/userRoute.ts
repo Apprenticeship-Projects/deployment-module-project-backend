@@ -6,7 +6,6 @@ import { SALT_ROUNDS } from "../constants";
 import validate from "../middleware/validate";
 import { auth } from "../middleware/auth";
 import { formatUser } from "../utils/format";
-import { InferAttributes } from "sequelize";
 
 export const userRoute = Router();
 
