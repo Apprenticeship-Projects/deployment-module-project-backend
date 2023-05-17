@@ -19,7 +19,7 @@ export async function formatMessage(message: Message): Promise<OutgoingMessage> 
 }
 
 export async function formatUser(user: User): Promise<UserData> {
-	const channels = await user.getChannels();
+	const channels = await user.getAllChannels();
 
 	return {
 		id: user.id,
