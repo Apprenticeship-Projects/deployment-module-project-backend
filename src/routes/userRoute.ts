@@ -61,20 +61,19 @@ userRoute.put("/me", auth, async (req, res, next) => {
 	try {
 		const { newUsername, newPassword, password } = req.body;
 		const correctPassword = await bcrypt.compare(password, req.user!.password);
-
 		if (correctPassword) {
 			const updateObject: UpdateAttributes<User> = {};
 
 			if (newUsername) updateObject.username = newUsername;
 
-			if (password) {
+			if (newPassword) {
 				const hashPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
 				updateObject.password = hashPassword;
 			}
 
 			const user = await req.user!.update(updateObject);
 			const formattedUser = await formatUser(user);
-			res.status(200).send(formattedUser);
+			return res.status(200).send(formattedUser);
 		}
 		res.status(400).send({ message: "Password required to make user changes" });
 	} catch (error) {
@@ -82,6 +81,17 @@ userRoute.put("/me", auth, async (req, res, next) => {
 	}
 });
 
-userRoute.delete("/me", (req, res) => {
-	res.send("This is the user/me DELETE route");
+userRoute.delete("/me", async (req, res, next) => {
+	try {
+		const { password } = req.body;
+		const correctPassword = await bcrypt.compare(password, req.user!.password);
+
+		if (correctPassword) {
+			await req.user!.destroy();
+			return res.status(200).send({ message: "User deleted" });
+		}
+		res.status(400).send({ message: "Password required to make user changes" });
+	} catch (error) {
+		next(error);
+	}
 });
