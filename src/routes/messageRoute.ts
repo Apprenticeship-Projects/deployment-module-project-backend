@@ -34,7 +34,6 @@ messageRoute.get("/:id", auth, async (req, res, next) => {
 		const message = await Message.findOne({
 			where: {
 				id: req.params.id,
-				"$channel.id$": req.params.channelId,
 			},
 			include: [Message.associations.channel],
 		});
