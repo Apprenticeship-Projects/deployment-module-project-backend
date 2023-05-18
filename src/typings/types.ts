@@ -10,6 +10,7 @@ export interface OutgoingMessage {
 	editedAt: Date;
 	createdAt: Date;
 	user: {
+		id: number;
 		username: string;
 	};
 }
