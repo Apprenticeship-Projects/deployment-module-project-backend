@@ -42,7 +42,7 @@ type CreationAttributes = InferCreationAttributes<
 export class Channel extends Model<Attributes, CreationAttributes> {
 	declare id: CreationOptional<number>;
 	declare name: string;
-	declare isGlobal: boolean;
+	declare isGlobal: CreationOptional<boolean>;
 	declare createdAt: CreationOptional<Date>;
 	declare updatedAt: CreationOptional<Date>;
 
