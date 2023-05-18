@@ -22,6 +22,7 @@ export default {
 				type: DataTypes.BOOLEAN,
 				field: "is_global",
 				allowNull: false,
+				defaultValue: false,
 			},
 			createdAt: {
 				type: DataTypes.DATE,
