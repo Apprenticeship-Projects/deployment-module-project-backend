@@ -81,7 +81,7 @@ userRoute.put("/me", auth, async (req, res, next) => {
 	}
 });
 
-userRoute.delete("/me", async (req, res, next) => {
+userRoute.delete("/me", auth, async (req, res, next) => {
 	try {
 		const { password } = req.body;
 		const correctPassword = await bcrypt.compare(password, req.user!.password);
@@ -91,6 +91,17 @@ userRoute.delete("/me", async (req, res, next) => {
 			return res.status(200).send({ message: "User deleted" });
 		}
 		res.status(400).send({ message: "Password required to make user changes" });
+	} catch (error) {
+		next(error);
+	}
+});
+
+userRoute.get("/all", auth, async (req, res, next) => {
+	try {
+		const allUsers = await User.findAll();
+		const allUsernames = allUsers.map((user) => user.username);
+
+		res.status(200).send(allUsernames);
 	} catch (error) {
 		next(error);
 	}
