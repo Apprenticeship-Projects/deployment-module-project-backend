@@ -60,14 +60,12 @@ export class User extends Model<Attributes, CreationAttributes> {
 
 	async getAllChannels() {
 		const channels = await this.getChannels();
-		channels.concat(
-			await Channel.findAll({
-				where: {
-					isGlobal: true,
-				},
-			})
-		);
-		return channels;
+		const global = await Channel.findAll({
+			where: {
+				isGlobal: true,
+			},
+		})
+		return channels.concat(global);
 	}
 
 	// User hasMany Message
