@@ -112,6 +112,7 @@ export class User extends Model<Attributes, CreationAttributes> {
 				username: {
 					type: DataTypes.STRING,
 					allowNull: false,
+					unique: true,
 					validate: {
 						len: [2, 40],
 					},
