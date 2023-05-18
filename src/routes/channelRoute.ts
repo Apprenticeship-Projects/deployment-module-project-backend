@@ -39,15 +39,23 @@ channelRoute.get("/all", auth, async (req, res, next) => {
 
 channelRoute.post("/:id/join", auth, async (req, res, next) => {
 	try {
+		const isInChannel = await req.user!.getChannels({
+			where: { id: req.params.id },
+		});
+
+		if (isInChannel.length > 0) {
+			return res.status(400).send({ message: "User already in channel" });
+		}
 		const channel = await Channel.findByPk(req.params.id);
+
 		if (channel) {
 			await channel.addUser(req.user!);
 
-			res.status(200).send({
+			return res.status(200).send({
 				message: `${req.user!.username} has joined ${channel?.name}`,
 			});
 		}
-		res.status(404).send({ message: "Channel does not exist" });
+		res.status(400).send({ message: "Channel does not exist" });
 	} catch (error) {
 		next(error);
 	}
@@ -55,10 +63,19 @@ channelRoute.post("/:id/join", auth, async (req, res, next) => {
 
 channelRoute.post("/:id/leave", auth, async (req, res, next) => {
 	try {
+		const isInChannel = await req.user!.getChannels({
+			where: { id: req.params.id },
+		});
+
+		if (isInChannel.length === 0) {
+			return res.status(400).send({ message: "User is not in channel" });
+		}
+
 		const channel = await Channel.findByPk(req.params.id);
+
 		if (channel) {
 			await channel.removeUser(req.user!);
-			res.status(200).send({
+			return res.status(200).send({
 				message: `${req.user!.username} has left ${channel?.name}`,
 			});
 		}
