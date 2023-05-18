@@ -19,8 +19,10 @@ interface ServerToClientEvents {
 interface ClientToServerEvents {}
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
+	cookie: true,
 	cors: {
 		origin: "http://localhost:3000",
+		credentials: true,
 	},
 });
 
@@ -37,8 +39,8 @@ io.on("connection", async (socket) => {
 	const req = socket.request as Request;
 
 	// console.log("User connected");
-	// console.log("Authenticated:", req.isAuthenticated());
-	// console.log("User:", req.user);
+	console.log("Authenticated:", req.isAuthenticated());
+	console.log("User:", req.session);
 
 	socket.join(req.session.id);
 	logger.info(
@@ -54,6 +56,10 @@ io.on("connection", async (socket) => {
 
 		socket.join(rooms);
 	}
+});
+
+io.on("error", () => {
+	console.log("Socket error");
 });
 
 export default io;
