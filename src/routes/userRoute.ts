@@ -57,29 +57,41 @@ userRoute.get("/me", auth, async (req, res, next) => {
 	}
 });
 
-userRoute.put("/me", auth, async (req, res, next) => {
-	try {
-		const { newUsername, newPassword, password } = req.body;
-		const correctPassword = await bcrypt.compare(password, req.user!.password);
-		if (correctPassword) {
-			const updateObject: UpdateAttributes<User> = {};
+userRoute.put(
+	"/me",
+	body("password").optional().isStrongPassword({
+		minLength: 8,
+		minLowercase: 1,
+		minUppercase: 1,
+		minNumbers: 1,
+		minSymbols: 1,
+	}),
+	body("username").optional().isLength({ min: 2, max: 40 }),
+	auth,
+	async (req, res, next) => {
+		try {
+			const { newUsername, newPassword, password } = req.body;
+			const correctPassword = await bcrypt.compare(password, req.user!.password);
+			if (correctPassword) {
+				const updateObject: UpdateAttributes<User> = {};
 
-			if (newUsername) updateObject.username = newUsername;
+				if (newUsername) updateObject.username = newUsername;
 
-			if (newPassword) {
-				const hashPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
-				updateObject.password = hashPassword;
+				if (newPassword) {
+					const hashPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
+					updateObject.password = hashPassword;
+				}
+
+				const user = await req.user!.update(updateObject);
+				const formattedUser = await formatUser(user);
+				return res.status(200).send(formattedUser);
 			}
-
-			const user = await req.user!.update(updateObject);
-			const formattedUser = await formatUser(user);
-			return res.status(200).send(formattedUser);
+			res.status(400).send({ message: "Password required to make user changes" });
+		} catch (error) {
+			next(error);
 		}
-		res.status(400).send({ message: "Password required to make user changes" });
-	} catch (error) {
-		next(error);
 	}
-});
+);
 
 userRoute.delete("/me", auth, async (req, res, next) => {
 	try {
