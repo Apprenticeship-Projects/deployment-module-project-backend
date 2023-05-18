@@ -42,10 +42,15 @@ io.on("connection", async (socket) => {
 	// console.log("Authenticated:", req.isAuthenticated());
 	// console.log("Handshake:", req);
 
-	socket.join(req.session.id);
 	logger.info(
 		`Socket [${socket.id}] connected. Authenticated: ${req.isAuthenticated()}`
 	);
+	socket.join(req.session.id);
+	// console.log(req.session.id);
+
+	socket.on("disconnect", () => {
+		logger.info(`Socket [${socket.id}] disconnect`);
+	});
 
 	if (req.isAuthenticated()) {
 		const channels = await req.user.getAllChannels();

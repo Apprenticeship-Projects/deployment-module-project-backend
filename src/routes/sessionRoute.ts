@@ -19,7 +19,9 @@ sessionRoute.post(
 	body("email").isString(),
 	body("password").isString(),
 	validate(),
-	passport.authenticate("login"),
+	passport.authenticate("login", {
+		keepSessionInfo: true,
+	}),
 	(req, res) => {
 		/*
         #swagger.parameters["credentials"] = {
@@ -27,8 +29,6 @@ sessionRoute.post(
             description: 'Your email and password',
         }
         */
-		io.in(req.sessionID).disconnectSockets(true);
-
 		res.status(200).send({
 			message: "Logged in",
 		});
