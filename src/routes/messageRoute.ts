@@ -62,7 +62,6 @@ messageRoute.post(
 		res,
 		next
 	) => {
-		
 		const channel = await Channel.findByPk(req.body.channelId);
 		if (!channel) {
 			return res.status(404).send({
@@ -71,7 +70,9 @@ messageRoute.post(
 		}
 		if (
 			(
-				await req.user!.getAllChannels()
+				await req.user!.getAllChannels({
+					id: channel.id,
+				})
 			).length === 0
 		) {
 			return res.status(400).send({
@@ -90,7 +91,7 @@ messageRoute.post(
 			);
 			await message.setUser(req.user, { transaction });
 
-			console.log(message)
+			console.log(message);
 
 			await transaction.commit();
 

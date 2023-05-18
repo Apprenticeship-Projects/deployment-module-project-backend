@@ -27,8 +27,9 @@ import {
 	Model,
 	NonAttribute,
 	Sequelize,
+	WhereOptions,
 } from "sequelize";
-import { Channel } from "./Channel.model";
+import { Channel, ChannelAssociations } from "./Channel.model";
 import type { Message } from "./Message.model";
 import { Session } from "./Session.model";
 
@@ -58,10 +59,22 @@ export class User extends Model<Attributes, CreationAttributes> {
 	declare hasChannels: BelongsToManyHasAssociationsMixin<Channel, number>;
 	declare countChannels: BelongsToManyCountAssociationsMixin;
 
-	async getAllChannels() {
-		const channels = await this.getChannels();
+	async getAllChannels(
+		where?: WhereOptions<
+			InferAttributes<
+				Channel,
+				{
+					omit: ChannelAssociations;
+				}
+			>
+		>
+	) {
+		const channels = await this.getChannels({
+			where,
+		});
 		const globalChannels = await Channel.findAll({
 			where: {
+				...where,
 				isGlobal: true,
 			},
 		});
