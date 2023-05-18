@@ -13,6 +13,7 @@ export async function formatMessage(message: Message): Promise<OutgoingMessage> 
 		editedAt: message.editedAt,
 		createdAt: message.createdAt,
 		user: {
+			id: user.id,
 			username: user.username,
 		},
 	};
