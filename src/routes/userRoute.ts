@@ -6,6 +6,7 @@ import { SALT_ROUNDS } from "../constants";
 import validate from "../middleware/validate";
 import { auth } from "../middleware/auth";
 import { formatUser } from "../utils/format";
+import { UpdateAttributes } from "../typings/types";
 
 export const userRoute = Router();
 
@@ -61,7 +62,7 @@ userRoute.put("/me", auth, async (req, res, next) => {
 		const { newUsername, newPassword, password } = req.body;
 		const correctPassword = await bcrypt.compare(password, req.user!.password);
 		if (correctPassword) {
-			const updateObject: { username?: string; password?: string } = {};
+			const updateObject: UpdateAttributes<User> = {};
 
 			if (newUsername) updateObject.username = newUsername;
 

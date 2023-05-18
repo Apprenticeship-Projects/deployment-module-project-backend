@@ -11,7 +11,7 @@ import { sessionRoute, channelRoute, messageRoute } from "./routes";
 import requestLogger from "./middleware/requestLogger";
 import logger from "./utils/logger";
 
-const app = express();
+export const app = express();
 const server = http.createServer(app);
 
 app.use(
@@ -45,6 +45,8 @@ app.use(
 );
 
 app.use((err: Error | Error[], _req: Request, res: Response, _next: NextFunction) => {
+	if (res.headersSent) return;
+
 	const errors = Array.isArray(err) ? err : [err];
 	for (const error of errors) {
 		if (error instanceof Error) {
@@ -53,8 +55,6 @@ app.use((err: Error | Error[], _req: Request, res: Response, _next: NextFunction
 			logger.error(`Error: ${error}`);
 		}
 	}
-
-	if (res.headersSent) return;
 
 	res.status(500).send({
 		message: "An error occured on the server!",
