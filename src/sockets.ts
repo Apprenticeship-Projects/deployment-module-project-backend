@@ -39,8 +39,8 @@ io.on("connection", async (socket) => {
 	const req = socket.request as Request;
 
 	// console.log("User connected");
-	console.log("Authenticated:", req.isAuthenticated());
-	console.log("User:", req.session);
+	// console.log("Authenticated:", req.isAuthenticated());
+	// console.log("Handshake:", req);
 
 	socket.join(req.session.id);
 	logger.info(
