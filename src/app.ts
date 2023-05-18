@@ -11,7 +11,7 @@ import { sessionRoute, channelRoute, messageRoute } from "./routes";
 import requestLogger from "./middleware/requestLogger";
 import logger from "./utils/logger";
 
-export const app = express();
+const app = express();
 const server = http.createServer(app);
 
 app.use(
