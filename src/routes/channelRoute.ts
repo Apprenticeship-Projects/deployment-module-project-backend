@@ -1,32 +1,58 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { Channel, User } from "../db/models";
 import { database } from "../db";
 import { auth } from "../middleware/auth";
 import * as bcrypt from "bcrypt";
+import { body } from "express-validator";
+import validate from "../middleware/validate";
 
 export const channelRoute = Router();
 
-channelRoute.post("/create", auth, async (req, res, next) => {
-	const transaction = await database!.transaction();
-	try {
-		const users = await User.findAll({ where: { username: req.body.usernames } });
-		users.push(req.user!);
+channelRoute.post(
+	"/create",
+	auth,
+	body("channelName").isLength({
+		max: 64,
+		min: 5,
+	}),
+	body("usernames").isArray(),
+	body("usernames.*").isString(),
+	validate(),
+	async (
+		req: Request<
+			any,
+			any,
+			{
+				usernames: string[];
+				channelName: string;
+			}
+		>,
+		res,
+		next
+	) => {
+		const transaction = await database!.transaction();
+		try {
+			const users = await User.findAll({
+				where: { username: req.body.usernames },
+			});
+			users.push(req.user!);
 
-		const channel = await Channel.create(
-			{ name: req.body.channelName },
-			{ transaction }
-		);
+			const channel = await Channel.create(
+				{ name: req.body.channelName },
+				{ transaction }
+			);
 
-		await channel.addUsers(users, { transaction });
+			await channel.addUsers(users, { transaction });
 
-		await transaction.commit();
+			await transaction.commit();
 
-		res.status(200).send(channel);
-	} catch (error) {
-		await transaction.rollback();
-		next(error);
+			res.status(200).send(channel);
+		} catch (error) {
+			await transaction.rollback();
+			next(error);
+		}
 	}
-});
+);
 
 channelRoute.get("/all", auth, async (req, res, next) => {
 	try {
