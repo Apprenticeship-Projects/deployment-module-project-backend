@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { User } from "../db/models";
 import * as bcrypt from "bcrypt";
 import { body } from "express-validator";
@@ -59,16 +59,30 @@ userRoute.get("/me", auth, async (req, res, next) => {
 
 userRoute.put(
 	"/me",
-	body("password").optional().isStrongPassword({
+	body("password").isString(),
+	body("newPassword").optional().isStrongPassword({
 		minLength: 8,
 		minLowercase: 1,
 		minUppercase: 1,
 		minNumbers: 1,
 		minSymbols: 1,
 	}),
-	body("username").optional().isLength({ min: 2, max: 40 }),
+	body("newUsername").optional().isLength({ min: 2, max: 40 }),
+	validate(),
 	auth,
-	async (req, res, next) => {
+	async (
+		req: Request<
+			any,
+			any,
+			{
+				newUsername?: string;
+				newPassword?: string;
+				password: string;
+			}
+		>,
+		res,
+		next
+	) => {
 		try {
 			const { newUsername, newPassword, password } = req.body;
 			const correctPassword = await bcrypt.compare(password, req.user!.password);
@@ -93,20 +107,36 @@ userRoute.put(
 	}
 );
 
-userRoute.delete("/me", auth, async (req, res, next) => {
-	try {
-		const { password } = req.body;
-		const correctPassword = await bcrypt.compare(password, req.user!.password);
+userRoute.delete(
+	"/me",
+	body("password").isString(),
+	validate(),
+	auth,
+	async (
+		req: Request<
+			any,
+			any,
+			{
+				password: string;
+			}
+		>,
+		res,
+		next
+	) => {
+		try {
+			const { password } = req.body;
+			const correctPassword = await bcrypt.compare(password, req.user!.password);
 
-		if (correctPassword) {
-			await req.user!.destroy();
-			return res.status(200).send({ message: "User deleted" });
+			if (correctPassword) {
+				await req.user!.destroy();
+				return res.status(200).send({ message: "User deleted" });
+			}
+			res.status(400).send({ message: "Password required to make user changes" });
+		} catch (error) {
+			next(error);
 		}
-		res.status(400).send({ message: "Password required to make user changes" });
-	} catch (error) {
-		next(error);
 	}
-});
+);
 
 userRoute.get("/all", auth, async (req, res, next) => {
 	try {

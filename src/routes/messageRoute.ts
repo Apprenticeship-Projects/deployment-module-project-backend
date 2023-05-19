@@ -1,15 +1,17 @@
-import { Request, Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { Channel, Message } from "../db/models";
 import { auth } from "../middleware/auth";
 import { formatMessage } from "../utils/format";
 import { database } from "../db";
 import io from "../sockets";
+import { body, param } from "express-validator";
+import validate from "../middleware/validate";
 
 export const messageRoute = Router();
 
 messageRoute.use(auth);
 
-messageRoute.get("/:channelId/all", auth, async (req, res, next) => {
+messageRoute.get("/:channelId/all", async (req, res, next) => {
 	try {
 		const messages = await Message.findAll({
 			where: {
@@ -29,7 +31,7 @@ messageRoute.get("/:channelId/all", auth, async (req, res, next) => {
 	}
 });
 
-messageRoute.get("/:id", auth, async (req, res, next) => {
+messageRoute.get("/:id", async (req, res, next) => {
 	try {
 		const message = await Message.findOne({
 			where: {
@@ -50,6 +52,12 @@ messageRoute.get("/:id", auth, async (req, res, next) => {
 
 messageRoute.post(
 	"/",
+	body("channelId").isInt(),
+	body("content").isLength({
+		min: 0,
+		max: 500,
+	}),
+	validate(),
 	async (
 		req: Request<
 			any,
@@ -91,7 +99,7 @@ messageRoute.post(
 			);
 			await message.setUser(req.user, { transaction });
 
-			console.log(message);
+			// console.log(message);
 
 			await transaction.commit();
 
@@ -109,20 +117,26 @@ messageRoute.post(
 
 messageRoute.put(
 	"/:id",
+	param("id").isInt().toInt(),
+	body("content").isLength({
+		min: 1,
+		max: 500,
+	}),
+	validate(),
 	async (
 		req: Request<
 			{
-				id: number;
+				id?: number;
 			},
 			any,
 			{
 				content: string;
 			}
 		>,
-		res,
-		next
+		res: Response,
+		next: NextFunction
 	) => {
-		const message = await Message.findByPk(req.params.id);
+		const message = await Message.findByPk(req.params.id!);
 		if (!message) {
 			return res.status(404).send({
 				message: "No such message",
@@ -164,34 +178,45 @@ messageRoute.put(
 	}
 );
 
-messageRoute.delete("/:id", async (req, res, next) => {
-	const message = await Message.findByPk(req.params.id);
-	if (!message) {
-		return res.status(404).send({
-			message: "No such message",
-		});
+messageRoute.delete(
+	"/:id",
+	param("id").isInt().toInt(),
+	validate(),
+	async (
+		req: Request<{
+			id?: number;
+		}>,
+		res: Response,
+		next: NextFunction
+	) => {
+		const message = await Message.findByPk(req.params.id);
+		if (!message) {
+			return res.status(404).send({
+				message: "No such message",
+			});
+		}
+		if ((await message.getUser()).id !== req.user!.id) {
+			return res.status(400).send({
+				message: "Not your message",
+			});
+		}
+
+		const transaction = await database!.transaction();
+
+		try {
+			await message.destroy({ transaction });
+
+			const channel = await message.getChannel({
+				transaction,
+			});
+
+			await transaction.commit();
+
+			io.to(`channel-${channel.id}`).emit("messageDeleted", message.id);
+			res.sendStatus(200);
+		} catch (err) {
+			await transaction.rollback();
+			next(err);
+		}
 	}
-	if ((await message.getUser()).id !== req.user!.id) {
-		return res.status(400).send({
-			message: "Not your message",
-		});
-	}
-
-	const transaction = await database!.transaction();
-
-	try {
-		await message.destroy({ transaction });
-
-		const channel = await message.getChannel({
-			transaction,
-		});
-
-		await transaction.commit();
-
-		io.to(`channel-${channel.id}`).emit("messageDeleted", message.id);
-		res.sendStatus(200);
-	} catch (err) {
-		await transaction.rollback();
-		next(err);
-	}
-});
+);
