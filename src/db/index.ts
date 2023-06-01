@@ -2,11 +2,13 @@ import { Options, Sequelize } from "sequelize";
 import * as configs from "./config/config.cjs";
 import { initModels } from "./models/index.js";
 
+export let database: Sequelize;
+
 export async function initDatabase() {
 	const env = process.env.NODE_ENV || "development";
 	const config = (configs as { default: { [key: string]: Options } }).default[env];
 
-	const database = new Sequelize({
+	database = new Sequelize({
 		...config,
 		logging: false,
 		define: {
