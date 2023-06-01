@@ -11,7 +11,10 @@ COPY package*.json .
 RUN npm ci
 # Copy server folder
 COPY . .
+# Init DB
+RUN npm run db:init
+RUN npm run build
 # RUN the application
-CMD ["node", "server/app.js"]
+CMD ["npm", "start"]
 # Expose port 5001 so backend is accesible
-EXPOSE 5001
+EXPOSE 8000
