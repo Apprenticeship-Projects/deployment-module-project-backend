@@ -25,7 +25,8 @@
     "db:seed": "sequelize db:seed:all",
     "db:unseed": "sequelize db:seed:undo",
     "db:unseed:all": "sequelize db:seed:undo:all",
-    "db:status": "sequelize db:migrate:status"
+    "db:status": "sequelize db:migrate:status",
+    "start:prod": "npm start"
   },
   "repository": {
     "type": "git",
