@@ -1,10 +1,13 @@
-import dotenv from 'dotenv';
-import server from './sockets'
+import "./utils/env";
+import "./sockets";
+import server from "./app";
+import { initDatabase } from "./db";
+import logger from "./utils/logger";
 
-dotenv.config();
+await initDatabase();
 
 const port = process.env.PORT;
 
 server.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`)
-})
+	logger.info(`Server is running at http://localhost:${port}`);
+});

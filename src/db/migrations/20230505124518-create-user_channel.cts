@@ -11,6 +11,14 @@ export default {
 				type: DataTypes.INTEGER,
 				field: "channel_id",
 			},
+			createdAt: {
+				type: DataTypes.DATE,
+				field: "created_at",
+			},
+			updatedAt: {
+				type: DataTypes.DATE,
+				field: "updated_at",
+			},
 		});
 	},
 	down: async (queryInterface: QueryInterface, Sequelize: Sequelize) => {

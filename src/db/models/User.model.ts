@@ -27,8 +27,9 @@ import {
 	Model,
 	NonAttribute,
 	Sequelize,
+	WhereOptions,
 } from "sequelize";
-import { Channel } from "./Channel.model";
+import { Channel, ChannelAssociations } from "./Channel.model";
 import type { Message } from "./Message.model";
 import { Session } from "./Session.model";
 
@@ -40,6 +41,7 @@ type CreationAttributes = InferCreationAttributes<User, { omit: UserAssociations
 export class User extends Model<Attributes, CreationAttributes> {
 	declare id: CreationOptional<number>;
 	declare username: string;
+	declare email: string;
 	declare password: string;
 	declare createdAt: CreationOptional<Date>;
 	declare updatedAt: CreationOptional<Date>;
@@ -57,16 +59,26 @@ export class User extends Model<Attributes, CreationAttributes> {
 	declare hasChannels: BelongsToManyHasAssociationsMixin<Channel, number>;
 	declare countChannels: BelongsToManyCountAssociationsMixin;
 
-	async getAllChannels() {
-		const channels = await this.getChannels();
-		channels.concat(
-			await Channel.findAll({
-				where: {
-					isGlobal: true,
-				},
-			})
-		);
-		return channels;
+	async getAllChannels(
+		where?: WhereOptions<
+			InferAttributes<
+				Channel,
+				{
+					omit: ChannelAssociations;
+				}
+			>
+		>
+	) {
+		const channels = await this.getChannels({
+			where,
+		});
+		const globalChannels = await Channel.findAll({
+			where: {
+				...where,
+				isGlobal: true,
+			},
+		});
+		return channels.concat(globalChannels);
 	}
 
 	// User hasMany Message
@@ -117,6 +129,11 @@ export class User extends Model<Attributes, CreationAttributes> {
 					validate: {
 						len: [2, 40],
 					},
+				},
+				email: {
+					type: DataTypes.STRING,
+					allowNull: false,
+					unique: true,
 				},
 				password: {
 					type: DataTypes.STRING,
