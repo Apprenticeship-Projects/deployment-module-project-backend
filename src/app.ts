@@ -16,7 +16,7 @@ const server = http.createServer(app);
 
 app.use(
 	cors({
-		origin: "http://localhost:3000",
+		origin: "https://bestproject.semmens.co",
 		credentials: true,
 	})
 );

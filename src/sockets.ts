@@ -21,7 +21,7 @@ interface ClientToServerEvents {}
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
 	cookie: true,
 	cors: {
-		origin: "http://localhost:3000",
+		origin: "https://bestproject.semmens.co",
 		credentials: true,
 	},
 });
