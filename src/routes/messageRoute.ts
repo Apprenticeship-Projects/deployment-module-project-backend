@@ -93,7 +93,7 @@ messageRoute.post(
 		try {
 			const message = await channel.createMessage(
 				{
-					content: req.body.content,
+					content: req.body.content.replaceAll(/(?![^ ])\n/g, "  \n"),
 				},
 				{ transaction }
 			);
